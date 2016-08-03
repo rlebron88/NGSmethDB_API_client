@@ -38,11 +38,11 @@ if changes:
                 PyZenity.InfoMessage('NGSmethDB API Client Upgraded!')
         except:
             res = dialog.Dialog().yesno(title = 'NGSmethDB API Client', text = 'There is an update of NGSmethDB API Client. Do you want to upgrade it?')
-            if res:
+            if res == 'ok':
                 os.system('cd /opt/NGSmethDB_API_client && git pull && sudo cp /opt/NGSmethDB_API_client/NGSmethDB_API_client.py /usr/local/bin/NGSmethDB_API_client && sudo chmod +x /usr/local/bin/NGSmethDB_API_client')
-                dialog.Dialog().InfoMessage(text = 'NGSmethDB API Client Upgraded!')
+                dialog.Dialog().yesno(text = 'NGSmethDB API Client Upgraded!', yes_label = 'OK', no_cancel = True)
     else:
         res = dialog.Dialog().yesno(title = 'NGSmethDB API Client', text = 'There is an update of NGSmethDB API Client. Do you want to upgrade it?')
-        if res:
+        if res == 'ok':
             os.system('cd /opt/NGSmethDB_API_client && git pull && sudo cp /opt/NGSmethDB_API_client/NGSmethDB_API_client.py /usr/local/bin/NGSmethDB_API_client && sudo chmod +x /usr/local/bin/NGSmethDB_API_client')
-            dialog.Dialog().InfoMessage(text = 'NGSmethDB API Client Upgraded!')
+            dialog.Dialog().yesno(text = 'NGSmethDB API Client Upgraded!', yes_label = 'OK', no_cancel = True)
