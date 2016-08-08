@@ -184,7 +184,7 @@ def get_region(index, total, region, assembly, samples, output, server, bar):
         meth_ratio[sample] = []
     query = region[0] + ":" + region[1] + "-" + region[2] + '?samples=' + ",".join(samples)
     url = os.path.join(server, assembly, query)
-    logger.info('GET: ' + url)
+    logger.info('Methylation Levels and DMCs - GET: ' + url)
     n = 0
     while True:
         try:
@@ -333,6 +333,51 @@ def get_region(index, total, region, assembly, samples, output, server, bar):
                 line = '\t'.join(line) + '\n'
                 handle.write(line)
     logger.info('Done')
+    # Methylation segments analysis
+    query = region[0] + ":" + region[1] + "-" + region[2]
+    url = os.path.join(os.path.join(server, 'segments', args.percentile), assembly, query)
+    logger.info('Methylation segments - GET: ' + url)
+    n = 0
+    while True:
+        try:
+            res = requests.get(url)
+            break
+        except:
+            n += 1
+            if n < retries:
+                logger.warning('Internet connection failed. Retrying...')
+            else:
+                logger.critical('Unable to connect to the Internet! Leaving the program...')
+                raise SystemExit
+    if res.status_code != 200:
+        logger.error('API Error: ' + str(res.status_code))
+        logger.critical('Unable to reach the NGSmethDB API Server! Leaving the program...')
+        raise SystemExit
+    data = res.json()
+    if not data:
+        logger.warning('No data available in this region!')
+        progress(bar, region, index + 1, total)
+        return
+    logger.info('Calculating...')
+    segments = os.path.join(output, 'segments')
+    segments_dir = True
+    if not os.path.exists(segments):
+        segments_dir = False
+        os.makedirs(segments)
+    lines = []
+    for d in data:
+        for s in samples:
+            individual, sample = s.split('.')
+            if individual in d['samples']:
+                if sample in d['samples'][individual]:
+                    line = '\t'.join([d['chrom'], str(d['start']), str(d['end']), str(d['samples']['sampleCount']), s, str(d['samples'][individual][sample]['methRatio']), str(d['samples'][individual][sample]['cgCount'])]) + '\n'
+                    lines.append(line)
+    if lines:
+        with open(os.path.join(segments, '_'.join(region) + '.tsv'), 'wt') as handle:
+            handle.write('#chrom\tstart\tend\tsampleCount\tsample\tsample.methRatio\tsample.cgCount\n')
+            handle.writelines(lines)
+    logger.info('Done')
+    # /Methylation segments analysis
     progress(bar, 'Done', index + 1, total)
     if index == total - 1 and not display:
         bar.gauge_stop()
@@ -387,7 +432,8 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--config', type=argparse.FileType('r'), help='\x1b[33mConfiguration File (optional)\x1b[0m')
     parser.add_argument('-r', '--server', type=str, default='http://bioinfo2.ugr.es:8888/NGSmethAPI', help='NGSmethDB API Server')
     parser.add_argument('-d', '--dialog', action='store_true', help='Do not try to use Zenity. Use dialog instead')
-    parser.add_argument('--version', action='version', version='%(prog)s 0.0.1')
+    parser.add_argument('-p', '--percentile', type=str, default='95', help='Methylation segments percentile threshold')
+    parser.add_argument('--version', action='version', version='%(prog)s 0.1.0')
     global args
     args = parser.parse_args()
 
