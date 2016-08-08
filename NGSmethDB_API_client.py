@@ -4,6 +4,11 @@
 NGSmethDB website: http://bioinfo2.ugr.es:8080/NGSmethDB/
 '''
 
+def signal_handler(signal, frame):
+        res = input('Do you want to cancel? [Y/N]: ')
+        if res.upper() == 'Y':
+            raise SystemExit
+
 def percentile(N, percent, key=lambda x:x):
     if not N:
         return None
@@ -427,7 +432,7 @@ def main(args):
 
 if __name__ == '__main__':
 
-    import argparse, logging, os, sys
+    import argparse, logging, os, sys, signal
 
     parser = argparse.ArgumentParser(prog='NGSmethDB API Client')
     parser.add_argument('-i', '--input', type=argparse.FileType('r'), help='\x1b[33mBED File (mandatory)\x1b[0m')
@@ -436,13 +441,17 @@ if __name__ == '__main__':
     parser.add_argument('-r', '--server', type=str, default='http://bioinfo2.ugr.es:8888/NGSmethAPI', help='NGSmethDB API Server')
     parser.add_argument('-d', '--dialog', action='store_true', help='Do not try to use Zenity. Use dialog instead')
     parser.add_argument('-p', '--percentile', type=str, default='95', help='Methylation segments percentile threshold')
-    parser.add_argument('--version', action='version', version='%(prog)s 0.1.0')
+    parser.add_argument('--version', action='version', version='%(prog)s 0.1.1')
     global args
     args = parser.parse_args()
 
     if not args.input or not args.output:
         parser.print_help()
         raise SystemExit
+
+
+
+    signal.signal(signal.SIGINT, signal_handler)
 
     global title
     title = 'NGSmethDB API Client'
