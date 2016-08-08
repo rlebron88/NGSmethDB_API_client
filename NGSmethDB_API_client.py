@@ -376,6 +376,9 @@ def get_region(index, total, region, assembly, samples, output, server, bar):
         with open(os.path.join(segments, '_'.join(region) + '.tsv'), 'wt') as handle:
             handle.write('#chrom\tstart\tend\tsampleCount\tsample\tsample.methRatio\tsample.cgCount\n')
             handle.writelines(lines)
+    else:
+        if not segments_dir:
+            shutil.rmtree(segments)
     logger.info('Done')
     # /Methylation segments analysis
     progress(bar, 'Done', index + 1, total)
