@@ -6,3 +6,7 @@
 ## 0.1.0 - 08/08/2016
 ### Added
 - Methylation segments analysis
+
+## 0.1.1 - 08/08/2016
+### Added
+- SIGINT trap
