@@ -259,12 +259,12 @@ def get_region(index, total, region, assembly, samples, output, server, bar):
             has_interindividual = False
             if not os.path.exists(intraindividual_file):
                 with open(os.path.join(diffmeth_cg, 'intraindividual' + '.tsv'), 'wt') as handle:
-                    header = ['chrom', 'pos', 'sample1', 'sample2', 'method', 'pvalue']
+                    header = ['chrom', 'pos', 'methContext', 'sample1', 'sample2', 'method', 'pValue']
                     header = '\t'.join(header) + '\n'
                     handle.write(header)
             if not os.path.exists(interindividual_file):
                 with open(os.path.join(diffmeth_cg, 'interindividual' + '.tsv'), 'wt') as handle:
-                    header = ['chrom', 'pos', 'sample1', 'sample2', 'method', 'pvalue']
+                    header = ['chrom', 'pos', 'methContext', 'sample1', 'sample2', 'method', 'pValue']
                     header = '\t'.join(header) + '\n'
                     handle.write(header)
             for pair in list(itertools.combinations(samples, 2)):
@@ -284,7 +284,7 @@ def get_region(index, total, region, assembly, samples, output, server, bar):
                             pvalues = d['diffmeth_cg'][individual_pair][sample_pair]
                             for method in pvalues:
                                 pvalue = pvalues[method]
-                                line = [d['chrom'], d['pos'], tmp1, tmp2, method, pvalue]
+                                line = [d['chrom'], d['pos'], 'CG', tmp1, tmp2, method, pvalue]
                                 line = [str(value) if value else '.' for value in line]
                                 line = '\t'.join(line) + '\n'
                                 handle.write(line)
@@ -375,11 +375,11 @@ def get_region(index, total, region, assembly, samples, output, server, bar):
             individual, sample = s.split('.')
             if individual in d['samples']:
                 if sample in d['samples'][individual]:
-                    line = '\t'.join([d['chrom'], str(d['start']), str(d['end']), str(d['samples']['sampleCount']), s, str(d['samples'][individual][sample]['methRatio']), str(d['samples'][individual][sample]['cgCount'])]) + '\n'
+                    line = '\t'.join([d['chrom'], str(d['start']), str(d['end']), 'CG', str(d['samples']['sampleCount']), s, str(d['samples'][individual][sample]['methRatio']), str(d['samples'][individual][sample]['cgCount'])]) + '\n'
                     lines.append(line)
     if lines:
         with open(os.path.join(segments, '_'.join(region) + '.tsv'), 'wt') as handle:
-            handle.write('#chrom\tstart\tend\tsampleCount\tsample\tsample.methRatio\tsample.cgCount\n')
+            handle.write('#chrom\tstart\tend\tmethContext\tsampleCount\tsample\tsample.methRatio\tsample.cytosineCount\n')
             handle.writelines(lines)
     else:
         if not segments_dir:
