@@ -264,7 +264,7 @@ def get_region(index, total, region, assembly, samples, output, server, bar):
                     handle.write(header)
             if not os.path.exists(interindividual_file):
                 with open(os.path.join(diffmeth_cg, 'interindividual' + '.tsv'), 'wt') as handle:
-                    header = ['chrom', 'pos', 'methContext', 'sample1', 'sample2', 'method', 'pValue']
+                    header = ['chrom', 'pos', 'methContext', 'sample1', 'sample2', 'method', 'consensus', 'pValue']
                     header = '\t'.join(header) + '\n'
                     handle.write(header)
             for pair in list(itertools.combinations(samples, 2)):
@@ -284,7 +284,7 @@ def get_region(index, total, region, assembly, samples, output, server, bar):
                             pvalues = d['diffmeth_cg'][individual_pair][sample_pair]
                             for method in pvalues:
                                 pvalue = pvalues[method]
-                                line = [d['chrom'], d['pos'], 'CG', tmp1, tmp2, method, pvalue]
+                                line = [d['chrom'], d['pos'], 'CG', tmp1, tmp2, method, 'True' if len(pvalues) == 3 else 'False', pvalue]
                                 line = [str(value) if value else '.' for value in line]
                                 line = '\t'.join(line) + '\n'
                                 handle.write(line)
