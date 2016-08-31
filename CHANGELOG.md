@@ -10,3 +10,9 @@
 ## 0.1.1 - 08/08/2016
 ### Added
 - SIGINT trap
+
+## 0.2.0 - 31/08/2016
+### Added
+- CHG methylation analysis
+- CHG differential methylation analysis
+- CHG methylation segments analysis
