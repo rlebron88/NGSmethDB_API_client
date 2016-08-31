@@ -513,7 +513,7 @@ if __name__ == '__main__':
     parser.add_argument('-r', '--server', type=str, default='http://bioinfo2.ugr.es:8888/NGSmethAPI', help='NGSmethDB API Server')
     parser.add_argument('-d', '--dialog', action='store_true', help='Do not try to use Zenity. Use dialog instead')
     parser.add_argument('-p', '--percentile', type=str, default='95', help='Methylation segments percentile threshold')
-    parser.add_argument('--version', action='version', version='%(prog)s 0.2.1')
+    parser.add_argument('--version', action='version', version='%(prog)s 0.2.0')
     global args
     args = parser.parse_args()
 
