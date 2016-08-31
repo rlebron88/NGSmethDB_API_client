@@ -212,46 +212,77 @@ def get_region(index, total, region, assembly, samples, output, server, bar):
         progress(bar, region, index + 1, total)
         return
     logger.info('Calculating...')
-    meth_cg = os.path.join(output,'meth_cg', "_".join(region))
+    meth_cg = os.path.join(output,'meth', "_".join(region))
     stats = os.path.join(output, 'stats', "_".join(region))
     if not os.path.exists(meth_cg): os.makedirs(meth_cg)
     if not os.path.exists(stats): os.makedirs(stats)
     for sample in samples:
         with open(os.path.join(meth_cg, sample + '.tsv'), 'wt') as handle:
-            header = ['#chrom', 'pos', 'genotype', 'w_methylatedReads', 'w_coverage', 'w_phredScore', 'c_methylatedReads', 'c_coverage', 'c_phredScore']
+            header = ['#chrom', 'pos', 'genotype', 'methContext', 'w_methylatedReads', 'w_coverage', 'w_phredScore', 'c_methylatedReads', 'c_coverage', 'c_phredScore']
             header += ['methylatedReads', 'coverage', 'phredScore', 'w_methRatio', 'c_methRatio', 'methRatio']
             header = '\t'.join(header) + '\n'
             handle.write(header)
     for d in data:
         for sample in samples:
             individual, s = sample.split('.')
-            line = [d['chrom'], d['pos'], d['genotype'][individual][s]]
-            w_methylatedReads = d['meth_cg']['w']['methylatedReads'][individual][s]
-            w_coverage = d['meth_cg']['w']['coverage'][individual][s]
-            w_phredScore = d['meth_cg']['w']['phredScore'][individual][s]
-            w_methRatio = round(w_methylatedReads/w_coverage, 2) if w_methylatedReads and w_coverage else None
-            c_methylatedReads = d['meth_cg']['c']['methylatedReads'][individual][s]
-            c_coverage = d['meth_cg']['c']['coverage'][individual][s]
-            c_phredScore = d['meth_cg']['c']['phredScore'][individual][s]
-            c_methRatio = round(c_methylatedReads/c_coverage, 2) if c_methylatedReads and c_coverage else None
-            methylatedReads = sum(filter(None, [w_methylatedReads, c_methylatedReads]))
-            coverage = sum(filter(None, [w_coverage, c_coverage]))
-            if not w_phredScore:
-                phredScore = c_phredScore
-            elif not c_phredScore:
-                phredScore = w_phredScore
-            else:
-                phredScore = int(sum([w_phredScore, c_phredScore])/2)
-            methRatio = round(methylatedReads/coverage, 2)
-            meth_ratio[round(methRatio, 1)][sample] += 1
-            meth_ratio[sample].append(round(methRatio, 1))
-            with open(os.path.join(meth_cg, sample + '.tsv'), 'at') as handle:
-                line += [w_methylatedReads, w_coverage, w_phredScore, c_methylatedReads, c_coverage, c_phredScore, methylatedReads, coverage, phredScore, w_methRatio, c_methRatio, methRatio]
-                line = [str(value) if value else '.' for value in line]
-                line = '\t'.join(line) + '\n'
-                handle.write(line)
+            if 'meth_cg' in d:
+                if individual in d['meth_cg']:
+                    if s in d['meth_cg'][individual]:
+                        line = [d['chrom'], d['pos'], d['genotype'][individual][s], 'CG']
+                        w_methylatedReads = d['meth_cg']['w']['methylatedReads'][individual][s]
+                        w_coverage = d['meth_cg']['w']['coverage'][individual][s]
+                        w_phredScore = d['meth_cg']['w']['phredScore'][individual][s]
+                        w_methRatio = round(w_methylatedReads/w_coverage, 2) if w_methylatedReads and w_coverage else None
+                        c_methylatedReads = d['meth_cg']['c']['methylatedReads'][individual][s]
+                        c_coverage = d['meth_cg']['c']['coverage'][individual][s]
+                        c_phredScore = d['meth_cg']['c']['phredScore'][individual][s]
+                        c_methRatio = round(c_methylatedReads/c_coverage, 2) if c_methylatedReads and c_coverage else None
+                        methylatedReads = sum(filter(None, [w_methylatedReads, c_methylatedReads]))
+                        coverage = sum(filter(None, [w_coverage, c_coverage]))
+                        if not w_phredScore:
+                            phredScore = c_phredScore
+                        elif not c_phredScore:
+                            phredScore = w_phredScore
+                        else:
+                            phredScore = int(sum([w_phredScore, c_phredScore])/2)
+                        methRatio = round(methylatedReads/coverage, 2)
+                        meth_ratio[round(methRatio, 1)][sample] += 1
+                        meth_ratio[sample].append(round(methRatio, 1))
+                        with open(os.path.join(meth_cg, sample + '.tsv'), 'at') as handle:
+                            line += [w_methylatedReads, w_coverage, w_phredScore, c_methylatedReads, c_coverage, c_phredScore, methylatedReads, coverage, phredScore, w_methRatio, c_methRatio, methRatio]
+                            line = [str(value) if value else '.' for value in line]
+                            line = '\t'.join(line) + '\n'
+                            handle.write(line)
+            if 'meth_chg' in d:
+                if individual in d['meth_chg']:
+                    if s in d['meth_chg'][individual]:
+                        line = [d['chrom'], d['pos'], d['genotype'][individual][s], 'CHG']
+                        w_methylatedReads = d['meth_chg']['w']['methylatedReads'][individual][s]
+                        w_coverage = d['meth_chg']['w']['coverage'][individual][s]
+                        w_phredScore = d['meth_chg']['w']['phredScore'][individual][s]
+                        w_methRatio = round(w_methylatedReads/w_coverage, 2) if w_methylatedReads and w_coverage else None
+                        c_methylatedReads = d['meth_chg']['c']['methylatedReads'][individual][s]
+                        c_coverage = d['meth_chg']['c']['coverage'][individual][s]
+                        c_phredScore = d['meth_chg']['c']['phredScore'][individual][s]
+                        c_methRatio = round(c_methylatedReads/c_coverage, 2) if c_methylatedReads and c_coverage else None
+                        methylatedReads = sum(filter(None, [w_methylatedReads, c_methylatedReads]))
+                        coverage = sum(filter(None, [w_coverage, c_coverage]))
+                        if not w_phredScore:
+                            phredScore = c_phredScore
+                        elif not c_phredScore:
+                            phredScore = w_phredScore
+                        else:
+                            phredScore = int(sum([w_phredScore, c_phredScore])/2)
+                        methRatio = round(methylatedReads/coverage, 2)
+                        meth_ratio[round(methRatio, 1)][sample] += 1
+                        meth_ratio[sample].append(round(methRatio, 1))
+                        with open(os.path.join(meth_chg, sample + '.tsv'), 'at') as handle:
+                            line += [w_methylatedReads, w_coverage, w_phredScore, c_methylatedReads, c_coverage, c_phredScore, methylatedReads, coverage, phredScore, w_methRatio, c_methRatio, methRatio]
+                            line = [str(value) if value else '.' for value in line]
+                            line = '\t'.join(line) + '\n'
+                            handle.write(line)
         if len(samples) >= 2 and 'diffmeth_cg' in d:
-            diffmeth_cg = os.path.join(output, 'diffmeth_cg', "_".join(region))
+            diffmeth_cg = os.path.join(output, 'diffmeth', "_".join(region))
             if not os.path.exists(diffmeth_cg): os.makedirs(diffmeth_cg)
             intraindividual_file = os.path.join(diffmeth_cg, 'intraindividual.tsv')
             interindividual_file = os.path.join(diffmeth_cg, 'interindividual.tsv')
@@ -292,7 +323,48 @@ def get_region(index, total, region, assembly, samples, output, server, bar):
                 os.remove(intraindividual_file)
             if not has_interindividual:
                 os.remove(interindividual_file)
-
+        if len(samples) >= 2 and 'diffmeth_chg' in d:
+            diffmeth_chg = os.path.join(output, 'diffmeth', "_".join(region))
+            if not os.path.exists(diffmeth_chg): os.makedirs(diffmeth_chg)
+            intraindividual_file = os.path.join(diffmeth_chg, 'intraindividual.tsv')
+            interindividual_file = os.path.join(diffmeth_chg, 'interindividual.tsv')
+            has_intraindividual = False
+            has_interindividual = False
+            if not os.path.exists(intraindividual_file):
+                with open(os.path.join(diffmeth_chg, 'intraindividual' + '.tsv'), 'wt') as handle:
+                    header = ['chrom', 'pos', 'methContext', 'sample1', 'sample2', 'method', 'pValue', 'consensus']
+                    header = '\t'.join(header) + '\n'
+                    handle.write(header)
+            if not os.path.exists(interindividual_file):
+                with open(os.path.join(diffmeth_chg, 'interindividual' + '.tsv'), 'wt') as handle:
+                    header = ['chrom', 'pos', 'methContext', 'sample1', 'sample2', 'method', 'pValue', 'consensus']
+                    header = '\t'.join(header) + '\n'
+                    handle.write(header)
+            for pair in list(itertools.combinations(samples, 2)):
+                tmp1, tmp2 = pair
+                individual1, sample1 = tmp1.split('.')
+                individual2, sample2 = tmp2.split('.')
+                individual_pair = '#'.join([individual1, individual2])
+                sample_pair = '#'.join([sample1, sample2])
+                pair_kind = 'intraindividual' if individual1 == individual2 else 'interindividual'
+                if individual_pair in d['diffmeth_chg']:
+                    if sample_pair in d['diffmeth_chg'][individual_pair]:
+                        if pair_kind == 'intraindividual':
+                            has_intraindividual = True
+                        else:
+                            has_interindividual = True
+                        with open(os.path.join(diffmeth_chg, pair_kind + '.tsv'), 'at') as handle:
+                            pvalues = d['diffmeth_chg'][individual_pair][sample_pair]
+                            for method in pvalues:
+                                pvalue = pvalues[method]
+                                line = [d['chrom'], d['pos'], 'CHG', tmp1, tmp2, method, pvalue, 'True' if len(pvalues) == 3 else 'False']
+                                line = [str(value) if value else '.' for value in line]
+                                line = '\t'.join(line) + '\n'
+                                handle.write(line)
+            if not has_intraindividual:
+                os.remove(intraindividual_file)
+            if not has_interindividual:
+                os.remove(interindividual_file)
     with open(os.path.join(stats, 'summary_stat.tsv'), 'wt') as handle:
         header = ['#measure'] + [sample for sample in samples]
         header = '\t'.join(header) + '\n'
@@ -441,7 +513,7 @@ if __name__ == '__main__':
     parser.add_argument('-r', '--server', type=str, default='http://bioinfo2.ugr.es:8888/NGSmethAPI', help='NGSmethDB API Server')
     parser.add_argument('-d', '--dialog', action='store_true', help='Do not try to use Zenity. Use dialog instead')
     parser.add_argument('-p', '--percentile', type=str, default='95', help='Methylation segments percentile threshold')
-    parser.add_argument('--version', action='version', version='%(prog)s 0.1.1')
+    parser.add_argument('--version', action='version', version='%(prog)s 0.2.1')
     global args
     args = parser.parse_args()
 
