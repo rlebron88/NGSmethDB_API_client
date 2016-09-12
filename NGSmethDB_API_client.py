@@ -447,7 +447,7 @@ def get_region(index, total, region, assembly, samples, output, server, bar):
             individual, sample = s.split('.')
             if individual in d['samples']:
                 if sample in d['samples'][individual]:
-                    line = '\t'.join([d['chrom'], str(d['start']), str(d['end']), 'CG', str(d['samples']['sampleCount']), s, str(d['samples'][individual][sample]['methRatio']), str(d['samples'][individual][sample]['cgCount'])]) + '\n'
+                    line = '\t'.join([d['chrom'], str(d['start']), str(d['end']), 'CG', str(d['samples']['sampleCount']), s, str(d['samples'][individual][sample]['methRatio']), str(d['samples'][individual][sample]['cytosineCount'])]) + '\n'
                     lines.append(line)
     if lines:
         with open(os.path.join(segments, '_'.join(region) + '.tsv'), 'wt') as handle:
