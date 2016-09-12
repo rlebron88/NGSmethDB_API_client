@@ -83,7 +83,7 @@ def get_assembly(server):
             return assembly
 
 def get_samples(assembly, server):
-    url = os.path.join(server, assembly, 'info')
+    url = os.path.join(server, assembly, 'samples')
     n = 0
     while True:
         try:
