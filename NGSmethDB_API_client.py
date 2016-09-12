@@ -447,11 +447,11 @@ def get_region(index, total, region, assembly, samples, output, server, bar):
             individual, sample = s.split('.')
             if individual in d['samples']:
                 if sample in d['samples'][individual]:
-                    line = '\t'.join([d['chrom'], str(d['start']), str(d['end']), 'CG', str(d['samples']['sampleCount']), s, str(d['samples'][individual][sample]['methRatio']), str(d['samples'][individual][sample]['cytosineCount'])]) + '\n'
+                    line = '\t'.join([d['chrom'], str(d['start']), str(d['end']), 'CG', str(d['samples']['sampleCount']), s, str(d['samples'][individual][sample]['methRatio'])]) + '\n'
                     lines.append(line)
     if lines:
         with open(os.path.join(segments, '_'.join(region) + '.tsv'), 'wt') as handle:
-            handle.write('#chrom\tstart\tend\tmethContext\tsampleCount\tsample\tsample.methRatio\tsample.cytosineCount\n')
+            handle.write('#chrom\tstart\tend\tmethContext\tsampleCount\tsample\tsample.methRatio\n')
             handle.writelines(lines)
     else:
         if not segments_dir:
